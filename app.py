@@ -1,35 +1,20 @@
-import json
-
-import pymysql
 from flask import Flask, request, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
-import mysql
+import databases
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__,
             static_url_path='/static',
             static_folder='static',
             template_folder='templates')
 
-
-def read_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        config = json.load(file)
-    return config
-
-
-config = read_json('./.config.json')
-try:
-    db = pymysql.connect(host=config['dbhosts'],
-                         user=config['dbuser'],
-                         password=config['dbpass'],
-                         database=config['dbname'])
-    print("数据库连接成功")
-except pymysql.MySQLError as e:
-    print(f"数据库连接失败: {e}")
-    db = None  # 确保 db 变量在异常情况下也被定义
+conn = databases.db_init('./.config.json')
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://username:password@localhost/dbname'
+db = SQLAlchemy(app)
 
 
-class User(db.Model):
+class User(db.CTF):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
     username = db.Column(db.String(20))  # 用户名
