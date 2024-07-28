@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if the login cookie exists
+            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                const [name, value] = cookie.split('=').map(c => c.trim());
+                acc[name] = value;
+                return acc;
+            }, {});
+
+            if (cookies['login']) {
+                // If the login cookie exists, redirect to /test
+                window.location.href = '/test';
+            }
+        });
+    </script>
+</head>
+<body>
+    <h1>Login</h1>
+    <form action="/api/checkuser" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

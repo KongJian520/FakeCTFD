@@ -1,0 +1,6 @@
+{
+    "dbhosts":"localhost",
+    "dbuser":"CTF",
+    "dbpass":"11223344",
+    "dbname":"CTF"
+}
