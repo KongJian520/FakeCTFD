@@ -1,7 +1,7 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 import databases
 import click
-from flask import Flask, request, redirect, url_for, flash, render_template, jsonify
+from flask import Flask, request, redirect, url_for, flash, render_template, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
@@ -16,6 +16,36 @@ app.config[
 app.secret_key = 'GEEKGEEK'
 # app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')  # 从环境变量中获取密钥
 db = SQLAlchemy(app)
+
+
+class Web(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    docker_name = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+
+class Misc(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    docker_name = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+
+class Reverse(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    docker_name = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+
+class Pwn(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    docker_name = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
+
+
+class Crypto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    docker_name = db.Column(db.String(255))
+    difficulty = db.Column(db.Integer)
 
 
 class User(db.Model):
@@ -121,5 +151,91 @@ def admin(username, password):
     click.echo('Done.')
 
 
+@app.errorhandler(404)
+def err404(e):
+    return render_template('errors/404.html'), 404
+
+
+@app.errorhandler(401)
+def err401(e):
+    return render_template('errors/401.html'), 401
+
+
+@app.route('/query', methods=['GET'])
+@login_required
+def query():
+    category = request.args.get('category')
+    if category == 'Web':
+        results = Web.query.all()
+    elif category == 'Misc':
+        results = Misc.query.all()
+    elif category == 'Reverse':
+        results = Reverse.query.all()
+    elif category == 'Pwn':
+        results = Pwn.query.all()
+    elif category == 'Crypto':
+        results = Crypto.query.all()
+    else:
+        return jsonify([])
+
+    data = [{
+        'id': result.id,
+        'docker_name': result.docker_name,
+        'difficulty': result.difficulty,
+    } for result in results]
+
+    return jsonify(data)
+
+
+@app.route('/action')
+def action():
+    category = request.args.get('category')
+    item_id = request.args.get('id')
+    # # 模拟执行动作并返回结果
+    result = f'Action executed for category {category} and item {item_id}'
+    response = make_response(result)
+    # response.set_cookie('result', result)
+    return response
+
+
+@app.route('/overview')
+def over_view():
+    content = "这是大纲。"
+    return render_template('CTF/menu.html', page='web', content=content)
+
+
+@app.route('/web')
+def web():
+    content = "这是Web页面的内容。"
+    return render_template('CTF/menu.html', page='web', content=content)
+
+
+@app.route('/misc')
+def misc():
+    content = "这是Misc页面的内容。"
+    return render_template('CTF/menu.html', page='misc', content=content)
+
+
+@app.route('/reverse')
+def reverse():
+    content = "这是Reverse页面的内容。"
+    return render_template('CTF/menu.html', page='reverse', content=content)
+
+
+@app.route('/pwn')
+def pwn():
+    content = "这是Pwn页面的内容。"
+    return render_template('CTF/menu.html', page='pwn', content=content)
+
+
+@app.route('/crypto')
+def crypto():
+    content = "这是Crypto页面的内容。"
+    return render_template('CTF/menu.html', page='crypto', content=content)
+
+
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
+
     app.run('0.0.0.0', 5000, debug=True)

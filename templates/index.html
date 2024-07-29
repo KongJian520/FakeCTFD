@@ -1,19 +1,14 @@
-<!DOCTYPE html>
-<html lang="zh">
+{% extends "base.xhtml" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-</head>
+{% block title %}Login{% endblock %}
 
-<body>
-    <h1>{{ user_name }}，您好</h1>
-    {% if current_user.is_authenticated %}
-    <a href="{{ url_for('logout') }}">登出</a>
-    {% else %}
-    <a href="{{ url_for('login') }}">登录</a>
-    {% endif %}
-</body>
+{% block content %}
+<h1>{{ user_name }}，您好</h1>
+{% if current_user.is_authenticated %}
+<a href="{{ url_for('logout') }}">登出</a>
+{% else %}
+<a href="{{ url_for('login') }}">登录</a>
+{% endif %}
 
-</html>
+<a href="{{ url_for('over_view') }}">进入赛场</a>
+{% endblock %}
