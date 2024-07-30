@@ -161,41 +161,17 @@ def err401(e):
     return render_template('errors/401.html'), 401
 
 
-@app.route('/query', methods=['GET'])
-@login_required
-def query():
-    category = request.args.get('category')
-    if category == 'Web':
-        results = Web.query.all()
-    elif category == 'Misc':
-        results = Misc.query.all()
-    elif category == 'Reverse':
-        results = Reverse.query.all()
-    elif category == 'Pwn':
-        results = Pwn.query.all()
-    elif category == 'Crypto':
-        results = Crypto.query.all()
-    else:
-        return jsonify([])
-
-    data = [{
-        'id': result.id,
-        'docker_name': result.docker_name,
-        'difficulty': result.difficulty,
-    } for result in results]
-
-    return jsonify(data)
-
-
-@app.route('/action')
-def action():
-    category = request.args.get('category')
-    item_id = request.args.get('id')
-    # # 模拟执行动作并返回结果
-    result = f'Action executed for category {category} and item {item_id}'
-    response = make_response(result)
-    # response.set_cookie('result', result)
-    return response
+# @app.route('/query', methods=['GET'])
+# @login_required
+# def query():
+#     category = request.args.get('category')
+#     data = [{
+#         'id': result.id,
+#         'docker_name': result.docker_name,
+#         'difficulty': result.difficulty,
+#     } for result in results]
+#
+#     return jsonify(data)
 
 
 @app.route('/overview')
@@ -205,37 +181,46 @@ def over_view():
 
 
 @app.route('/web')
+@login_required
 def web():
-    content = "这是Web页面的内容。"
+    content = "Web"
+    results = Web.query.all()
     return render_template('CTF/menu.html', page='web', content=content)
 
 
 @app.route('/misc')
+@login_required
 def misc():
-    content = "这是Misc页面的内容。"
+    content = "Misc"
+    results = Misc.query.all()
     return render_template('CTF/menu.html', page='misc', content=content)
 
 
 @app.route('/reverse')
+@login_required
 def reverse():
-    content = "这是Reverse页面的内容。"
+    content = "Reverse"
+    results = Reverse.query.all()
     return render_template('CTF/menu.html', page='reverse', content=content)
 
 
 @app.route('/pwn')
+@login_required
 def pwn():
-    content = "这是Pwn页面的内容。"
+    content = "Pwn"
+    results = Pwn.query.all()
     return render_template('CTF/menu.html', page='pwn', content=content)
 
 
 @app.route('/crypto')
+@login_required
 def crypto():
-    content = "这是Crypto页面的内容。"
+    content = "Crypto"
+    results = Crypto.query.all()
     return render_template('CTF/menu.html', page='crypto', content=content)
 
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-
     app.run('0.0.0.0', 5000, debug=True)

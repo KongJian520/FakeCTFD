@@ -1,0 +1,31 @@
+{% extends "base.xhtml" %}
+
+{% block title %}401 Unauthorized{% endblock %}
+
+{% block content %}
+<div class="container text-center mt-5">
+    <h1 class="display-4">401 Unauthorized</h1>
+    <p class="lead">您没有权限访问此页面。</p>
+    <p class="lead">您可能需要登录。</p>
+    <p>将在 <span id="countdown">3</span> 秒后返回上一级页面。</p>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var countdownElement = document.getElementById('countdown');
+        var countdown = 3;
+
+        var interval = setInterval(function () {
+            countdown--;
+            countdownElement.textContent = countdown;
+            if (countdown <= 0) {
+                clearInterval(interval);
+                window.history.back();
+            }
+        }, 1000);
+    });
+</script>
+
+<!-- 引入 Bootstrap CSS -->
+<link href="/static/bootstrap.min.css" rel="stylesheet">
+{% endblock %}

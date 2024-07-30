@@ -1,0 +1,46 @@
+{% extends "base.xhtml" %}
+
+{% block title %}查询页面{% endblock %}
+
+{% block content %}
+<h1>查询页面</h1>
+<label for="category">类别:</label>
+<select id="category" name="category">
+    <option value="Web">Web</option>
+    <option value="Pwn">Pwn</option>
+    <option value="Misc">Misc</option>
+    <option value="Crypto">Crypto</option>
+    <option value="Reverse">Reverse</option>
+    <option value="Others">Others</option>
+<!--<input type="text" id="category" name="category">-->
+<button id="queryButton">查询</button>
+
+<table id="resultTable">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Docker 名称</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- 查询结果将插入到这里 -->
+    </tbody>
+</table>
+
+<p id="cookieResult"></p>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // 读取并展示 Cookie 中的值
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith('result='));
+        if (cookieValue) {
+            const result = cookieValue.split('=')[1];
+            document.getElementById('cookieResult').textContent = `上次操作结果: ${result}`;
+        }
+
+        document.getElementById('queryButton').addEventListener('click', function () {
+
+        });
+    });
+</script>
+{% endblock %}
