@@ -1,9 +1,11 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 import databases
-import click
+
 from flask import Flask, request, redirect, url_for, flash, render_template, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
+
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+
+from manage import *
 
 app = Flask(__name__,
             static_url_path='/static',
@@ -16,36 +18,7 @@ app.config[
 app.secret_key = 'GEEKGEEK'
 # app.secret_key = os.environ.get('SECRET_KEY', 'default_secret_key')  # 从环境变量中获取密钥
 db = SQLAlchemy(app)
-
-
-class Web(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    docker_name = db.Column(db.String(255))
-    difficulty = db.Column(db.Integer)
-
-
-class Misc(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    docker_name = db.Column(db.String(255))
-    difficulty = db.Column(db.Integer)
-
-
-class Reverse(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    docker_name = db.Column(db.String(255))
-    difficulty = db.Column(db.Integer)
-
-
-class Pwn(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    docker_name = db.Column(db.String(255))
-    difficulty = db.Column(db.Integer)
-
-
-class Crypto(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    docker_name = db.Column(db.String(255))
-    difficulty = db.Column(db.Integer)
+migrate = Migrate(app, db)
 
 
 class User(db.Model):
@@ -78,6 +51,23 @@ class User(db.Model):
 
 
 login_manager = LoginManager(app)  # 实例化扩展类
+
+
+def create_model_class(name):
+    return type(
+        name, (db.Model, ), {
+            'id': db.Column(db.Integer, primary_key=True),
+            'docker_name': db.Column(db.String(255)),
+            'difficulty': db.Column(db.Integer),
+            'tips': db.Column(db.String(255))
+        })
+
+
+Web = create_model_class('Web')
+Pwn = create_model_class('Pwn')
+Crypto = create_model_class('Crypto')
+Reverse = create_model_class('Reverse')
+Misc = create_model_class('Misc')
 
 
 @login_manager.user_loader
@@ -125,32 +115,6 @@ def index():
     return render_template('index.html', user_name=user_name)
 
 
-@app.cli.command()
-@click.option('--username', prompt=True, help='The username used to login.')
-@click.option('--password',
-              prompt=True,
-              hide_input=True,
-              confirmation_prompt=True,
-              help='The password used to login.')
-def admin(username, password):
-    """Create user."""
-    db.create_all()
-
-    user = User.query.first()
-    if user is not None:
-        click.echo('Updating user...')
-        user.username = username
-        user.set_password(password)  # 设置密码
-    else:
-        click.echo('Creating user...')
-        user = User(username=username, name='Admin')
-        user.set_password(password)  # 设置密码
-        db.session.add(user)
-
-    db.session.commit()  # 提交数据库会话
-    click.echo('Done.')
-
-
 @app.errorhandler(404)
 def err404(e):
     return render_template('errors/404.html'), 404
@@ -161,23 +125,10 @@ def err401(e):
     return render_template('errors/401.html'), 401
 
 
-# @app.route('/query', methods=['GET'])
-# @login_required
-# def query():
-#     category = request.args.get('category')
-#     data = [{
-#         'id': result.id,
-#         'docker_name': result.docker_name,
-#         'difficulty': result.difficulty,
-#     } for result in results]
-#
-#     return jsonify(data)
-
-
 @app.route('/overview')
 def over_view():
     content = "这是大纲。"
-    return render_template('CTF/menu.html', page='web', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 @app.route('/web')
@@ -185,7 +136,7 @@ def over_view():
 def web():
     content = "Web"
     results = Web.query.all()
-    return render_template('CTF/menu.html', page='web', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 @app.route('/misc')
@@ -193,7 +144,7 @@ def web():
 def misc():
     content = "Misc"
     results = Misc.query.all()
-    return render_template('CTF/menu.html', page='misc', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 @app.route('/reverse')
@@ -201,7 +152,7 @@ def misc():
 def reverse():
     content = "Reverse"
     results = Reverse.query.all()
-    return render_template('CTF/menu.html', page='reverse', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 @app.route('/pwn')
@@ -209,7 +160,7 @@ def reverse():
 def pwn():
     content = "Pwn"
     results = Pwn.query.all()
-    return render_template('CTF/menu.html', page='pwn', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 @app.route('/crypto')
@@ -217,10 +168,10 @@ def pwn():
 def crypto():
     content = "Crypto"
     results = Crypto.query.all()
-    return render_template('CTF/menu.html', page='crypto', content=content)
+    return render_template('CTF/menu.html', content=content)
 
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
+    # with app.app_context():
+    #     db.create_all()
     app.run('0.0.0.0', 5000, debug=True)
